@@ -13,6 +13,7 @@ var mutate = utilities.mutate;
 var remove = utilities.remove;
 var rotate = utilities.rotate;
 var loop = utilities.loop;
+var Maybe = utilities.Maybe;
 
 // import {
 // //Utilities

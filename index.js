@@ -177,8 +177,7 @@ var RequestFrontEndHelpers = {
 var RequestBackEndHelpers = {
   createHTTPRequest: function() {
     var proto = (this.urlComponents.protocol === "https") ? https : http;
-    console.log("protocol is " + proto);
-    console.log(proto);
+    console.log("protocol is " + this.urlComponents.protocol);
     var req = proto.request({
       method: this.method,
       host: this.urlComponents.base,

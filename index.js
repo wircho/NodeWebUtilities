@@ -85,26 +85,26 @@ function URLComponents(url) {
     var hashSplit = u.split("#");
     if (hashSplit.length > 1) {
       u = hashSplit.shift();
-      this.fragment = hashSplit.join("");
+      this.fragment = hashSplit.join("#");
     }
     var qSplit = u.split("?");
     if (qSplit.lenght > 1) {
       u = qSplit.shift();
-      this.params = QueryItem.arrayFromString(qSplit.join(""));
+      this.params = QueryItem.arrayFromString(qSplit.join("?"));
     } else {
       this.params = new Array();
+    }
+    var bSplit = u.split("://");
+    if (bSplit.length > 1) {
+      this.protocol = bSplit.shift();
+      u = bSplit.join("://");
+    } else {
+      this.protocol = "http";
     }
     var pSplit = u.split("/");
     if (pSplit.length > 1) {
       u = pSplit.shift();
       this.path = "/" + pSplit.join("/");
-    }
-    var bSplit = u.split("://");
-    if (bSplit.length > 1) {
-      this.protocol = bSplit.shift();
-      u = bSplit.join("");
-    } else {
-      this.protocol = "http";
     }
     this.base = u;
   };

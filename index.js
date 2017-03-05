@@ -1,3 +1,5 @@
+var http          = require('http');
+var https           = require('https');
 var utilities = require('wircho-utilities');
 var pad = utilities.pad;
 var def = utilities.def;
@@ -174,7 +176,8 @@ var RequestFrontEndHelpers = {
 
 var RequestBackEndHelpers = {
   createHTTPRequest: function() {
-    var proto = (this.urlComponents.protocol == "https") ? https : http;
+    var proto = (this.urlComponents.protocol === "https") ? https : http;
+    console.log("protocol is " + proto);
     var req = proto.request({
       method: this.method,
       host: this.urlComponents.base,

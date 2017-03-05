@@ -71,22 +71,40 @@ function URLComponents(url) {
     var qSplit = u.split("?");
     if (qSplit.lenght > 1) {
       u = qSplit.shift();
-      this.params = QueryItem.arrayFromString(qSplit);
+      this.params = QueryItem.arrayFromString(qSplit.join(""));
     } else {
       this.params = new Array();
     }
-    this.url = u;
-  }
+    var pSplit = u.split("/");
+    if (pSplit.length > 1) {
+      u = pSplit.shift();
+      this.path = "/" + pSplit.join("/");
+    }
+    var bSplit = u.split("://");
+    if (bSplit.length > 1) {
+      this.protocol = bSplit.shift();
+      u = bSplit.join("");
+    } else {
+      this.protocol = "http";
+    }
+    this.base = u;
+  };
   
   this.getURL = function() {
-    return this.url
+    return this.protocol + "://" + this.base + this.path
       + ((def(this.params) && this.params.length > 0) ? ("?" + QueryItem.stringFromArray(this.params)) : "")
       + (def(this.fragment) ? ("#" + this.fragment) : "")
-  }
+  };
+
+  this.getProtocolToPath = function() {
+    return this.protocol + "://" + this.base + this.path;
+  };
   
   this.plusParams = function(params) {
     var comps = new URLComponents();
-    comps.url = this.url;
+    comps.protocol = this.protocol;
+    comps.base = this.base;
+    comps.path = this.path;
     comps.fragment = this.fragment;
     comps.params = new Array();
     for (var i = 0; i < this.params.length; i += 1) {
@@ -96,7 +114,7 @@ function URLComponents(url) {
       comps.params.push(params[i]);
     }
     return comps;
-  }
+  };
 }
 
 // Request type
@@ -117,7 +135,7 @@ var RequestFrontEndHelpers = {
     return req;
   },
   openHTTPRequest: function() {
-    this.req.open(this.method, getURL());
+    this.req.open(this.method, this.getURL());
     loop(this.headers,function(key,value) {
       this.req.setRequestHeader(key,value);
     }.bind(this));
@@ -135,39 +153,45 @@ var RequestFrontEndHelpers = {
       }
     }
   }
-  
 }
 
 var RequestBackEndHelpers = {
   createHTTPRequest: function() {
-    // var req = new XMLHttpRequest();
-    // req.responseType = fallback(this.responseType,"");
-    // req.onload = function() {
-    //   this.loadMaybe.resolve({request: req});
-    // }.bind(this);
-    // req.onerror = function() {
-    //   this.errorMaybe.resolve({request: req});
-    // }.bind(this);
-    // return req;
+    var proto = (this.urlComponents.protocol == "https") ? https : http;
+    var req = proto.request({
+      method: this.method,
+      host: this.urlComponents.base,
+      path: this.urlComponents.path,
+      headers: this.headers
+    }, function(response) {
+      var body = "";
+      response.on("data", function(d) {
+        body += d;
+      }.bind(this));
+      response.on("end", function(d) {
+        if (this.responseType === "json") {
+          var json = JSON.parse(body);
+          this.loadMaybe.resolve(json);
+        } else {
+          this.loadMaybe.resolve(body);
+        }
+      }.bind(this));
+    }.bind(this));
+    req.on("error", function(error) {
+      this.errorMaybe.resolve(error);
+    }.bind(this));
+    return req;
   },
   openHTTPRequest: function() {
-    // this.req.open(this.method, getURL());
-    // loop(this.headers,function(key,value) {
-    //   this.req.setRequestHeader(key,value);
-    // }.bind(this));
+    // Nothing here
   },
   sendHTTPRequest: function() {
-    // if (this.method === "GET" || this.method === "HEAD") {
-    //   this.req.send();
-    // } else {
-    //   if (def(this.body)) {
-    //     this.req.send(this.body);
-    //   } else if (this.params.length > 0) {
-    //     this.req.send(QueryItem.stringFromArray(this.params));
-    //   } else {
-    //     this.req.send();
-    //   }
-    // }
+    if (def(this.body)) {
+      this.req.write(this.body);
+    } else {
+      this.req.write(QueryItem.stringFromArray(this.getAllParams()));
+    }
+    this.req.end();
   }
   
 }
@@ -188,7 +212,11 @@ function Request(method,url,responseType) {
   this.loadMaybe = new Maybe();
   this.errorMaybe = new Maybe();
   
-  getURL = function() {
+  this.getAllParams = function() {
+    return this.urlComponents.plusParams(this.params).params;
+  }
+
+  this.getURL = function() {
     if (this.method === "GET" || this.method === "HEAD") {
       var c = this.urlComponents.plusParams(this.params);
       return c.getURL();
@@ -275,7 +303,7 @@ var Twitter = {
   },
   generateSignature: function(request, headerDictionary, tokenSecret) {
     var method = request.method;
-    var url = request.urlComponents.url;
+    var url = request.urlComponents.getProtocolToPath();
     var params = new Array();
     loop(request.urlComponents.params,function(i,q){ params.push(q); });
     loop(request.params,function(i,q){ params.push(q); });

@@ -196,7 +196,12 @@ var RequestBackEndHelpers = {
   
 }
 
-var RequestHelpers = RequestFrontEndHelpers;
+var RequestHelpers = {
+  using: RequestFrontEndHelpers,
+  use: function(helpers) {
+    this.using = helpers;
+  }
+};
 
 function Request(method,url,responseType) {
   this.method = method;
@@ -227,7 +232,7 @@ function Request(method,url,responseType) {
   
   createReq = function() {
     if (!def(this.req)) {
-      this.req = RequestHelpers.createHTTPRequest.call(this);
+      this.req = RequestHelpers.using.createHTTPRequest.call(this);
     }
   }.bind(this);
   
@@ -263,7 +268,7 @@ function Request(method,url,responseType) {
     if (this.opened) { return this; }
     this.opened = true;
     createReq();
-    RequestHelpers.openHTTPRequest.call(this);
+    RequestHelpers.using.openHTTPRequest.call(this);
     return this;
   };
   
@@ -281,7 +286,7 @@ function Request(method,url,responseType) {
     if (this.sent) { return this; }
     this.sent = true;
     this.open();
-    RequestHelpers.sendHTTPRequest.call(this);
+    RequestHelpers.using.sendHTTPRequest.call(this);
     return this;
   };
 }

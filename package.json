@@ -1,0 +1,21 @@
+{
+  "name": "wircho-web-utilities",
+  "version": "1.0.0",
+  "description": "Web utilities for node apps.",
+  "dependencies": {
+    "wircho-utilities": "git+https://github.com/wircho/NodeUtilities.git"
+  },
+  "main": "index.js",
+  "scripts": {
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wircho/NodeWebUtilities.git"
+  },
+  "author": "Adolfo Rodriguez",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/wircho/NodeWebUtilities/issues"
+  },
+  "homepage": "https://github.com/wircho/NodeWebUtilities#readme"
+}

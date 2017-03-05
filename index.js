@@ -1,21 +1,37 @@
-import {
-//Utilities
-  pad,
-  def,
-  fallback,
-  nullFallback,
-  err,
-  errstr,
-  errdict,
-  geterr,
-  projf,
-  projff,
-//Object utilities
-  mutate,
-  remove,
-  rotate,
-  loop
-} from 'wircho-utilities';
+var utilities = require('wircho-utilities');
+var pad = utilities.pad;
+var def = utilities.def;
+var fallback = utilities.fallback;
+var nullFallback = utilities.nullFallback;
+var err = utilities.err;
+var errstr = utilities.errstr;
+var errdict = utilities.errdict;
+var geterr = utilities.geterr;
+var projf = utilities.projf;
+var projff = utilities.projff;
+var mutate = utilities.mutate;
+var remove = utilities.remove;
+var rotate = utilities.rotate;
+var loop = utilities.loop;
+
+// import {
+// //Utilities
+//   pad,
+//   def,
+//   fallback,
+//   nullFallback,
+//   err,
+//   errstr,
+//   errdict,
+//   geterr,
+//   projf,
+//   projff,
+// //Object utilities
+//   mutate,
+//   remove,
+//   rotate,
+//   loop
+// } from 'wircho-utilities';
 
 // SHA1
 function b64_hmac_sha1(k,d,_p,_z){

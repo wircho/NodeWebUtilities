@@ -9,6 +9,7 @@ var err = utilities.err;
 var errstr = utilities.errstr;
 var errdict = utilities.errdict;
 var geterr = utilities.geterr;
+var routeerr = utilities.routeerr;
 var projf = utilities.projf;
 var projff = utilities.projff;
 var mutate = utilities.mutate;
@@ -325,10 +326,12 @@ function Request(method,url,responseType) {
 // Twitter stuff
 const TWITTER_KEY = process.env.TWITTER_KEY;
 const TWITTER_SECRET = process.env.TWITTER_SECRET;
+const TWITTER_CALLBACK = process.env.TWITTER_CALLBACK;
 
 var Twitter = {
   consumerKey: TWITTER_KEY,
   consumerSecret: TWITTER_SECRET,
+  callback: TWITTER_CALLBACK,
   signatureMethod: "HMAC-SHA1",
   oauthVersion: "1.0",
   generateNonce: function() {
@@ -360,7 +363,7 @@ var Twitter = {
       oauth_version: this.oauthVersion,
       oauth_nonce: this.generateNonce(),
       oauth_timestamp: this.generateTimestamp(),
-      oauth_callback: "http://www.google.com",
+      oauth_callback: this.callback,
       oauth_signature_method: this.signatureMethod,
       oauth_consumer_key: this.consumerKey
     };

@@ -344,7 +344,7 @@ var Twitter = {
     var signingKey = this.consumerSecret + "&" + fallback(tokenSecret,"");
     return b64_hmac_sha1(signingKey,baseString);
   },
-  getUserToken: function(callback) {
+  getUserToken: function(res,rej) {
     var r = request("POST","https://api.twitter.com/oauth/request_token");
     var headerDictionary = {
       oauth_version: this.oauthVersion,
@@ -357,7 +357,9 @@ var Twitter = {
     headerDictionary.oauth_signature = this.generateSignature(r, headerDictionary);
     var authHeader = this.generateOAuthHeader(headerDictionary);
     r.setHeader("Authorization",authHeader).onLoad(function(info) {
-      callback(info);
+      res(info);
+    }).onError(function(info) {
+      rej(info);
     }).send();
   }
 }

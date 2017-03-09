@@ -65,18 +65,30 @@ function QueryItem(key,value) {
     return (def(this.key) ? encodeURIComponent(this.key) : "")
       + ((def(this.key) && def(this.value)) ? ("=" + encodeURIComponent(this.value)) : "")
   }
-}
+};
 
 QueryItem.arrayFromString = function(string) {
   return string.split("&").map(function(str) {
     var arr = str.split("=");
     return new QueryItem(decodeURIComponent(arr[0]), (arr.length > 1) ? decodeURIComponent(arr[1]) : undefined);
   });
-}
+};
 
 QueryItem.stringFromArray = function(array) {
   return array.map(function(q) { return q.getComp() }).join("");
-}
+};
+
+QueryItem.dictionaryFromArray = function(array) {
+  var dict = {};
+  array.map(function(q) {
+    dict[q.key] = q.value;
+  });
+  return dict;
+};
+
+QueryItem.dictionaryFromString = function(string) {
+  return QueryItem.dictionaryFromArray(QueryItem.arrayFromString(string));
+};
 
 // URLComponents type
 function URLComponents(url) {
@@ -177,7 +189,6 @@ var RequestFrontEndHelpers = {
 var RequestBackEndHelpers = {
   createHTTPRequest: function() {
     var proto = (this.urlComponents.protocol === "https") ? https : http;
-    console.log("protocol is " + this.urlComponents.protocol);
     var req = proto.request({
       method: this.method,
       host: this.urlComponents.base,
@@ -338,7 +349,6 @@ var Twitter = {
     loop(headerDictionary,function(key,value){ params.push(new QueryItem(key,value)); });
     params = params.map(function(q){ return new QueryItem(encodeURIComponent(q.key),encodeURIComponent(q.value)); });
     params.sort(function(p,q){ return (p.key < q.key) ? (-1) : 1 });
-    console.log(params);
     var paramString = params.map(function(q){ return q.key + "=" + q.value }).join("&");
     var baseString = method.toUpperCase() + "&" + encodeURIComponent(url) + "&" + encodeURIComponent(paramString);
     var signingKey = this.consumerSecret + "&" + fallback(tokenSecret,"");

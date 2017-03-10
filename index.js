@@ -221,7 +221,9 @@ var RequestBackEndHelpers = {
     if (def(this.body)) {
       this.req.write(this.body);
     } else {
-      this.req.write(QueryItem.stringFromArray(this.getAllParams()));
+      var str = QueryItem.stringFromArray(this.getAllParams());
+      console.log("writing: " + str);
+      this.req.write(str);
     }
     this.req.end();
   }

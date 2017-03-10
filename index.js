@@ -407,8 +407,7 @@ Twitter.getAccessToken = function(verifier,requestToken,tokenSecret,res,rej) {
   console.log("got token: " + requestToken);
   console.log("got secret: " + tokenSecret);
   console.log("got verifier: " + verifier);
-  r.setParam("oauth_verifier",verifier);
-  var headerDictionary = this.generateHeaderDictionaryWithSignature(r,requestToken,tokenSecret/*,{oauth_verifier:verifier}*/);
+  var headerDictionary = this.generateHeaderDictionaryWithSignature(r,requestToken,tokenSecret,{oauth_verifier:verifier});
   var authHeader = this.generateOAuthHeader(headerDictionary);
   r.setHeader("Authorization",authHeader).onLoad(res).onError(rej).send();
 }.bind(Twitter);

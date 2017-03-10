@@ -357,7 +357,7 @@ var Twitter = {
     var signingKey = this.consumerSecret + "&" + fallback(tokenSecret,"");
     return b64_hmac_sha1(signingKey,baseString);
   },
-  getUserToken: function(res,rej) {
+  getOAuthToken: function(res,rej) {
     var r = request("POST","https://api.twitter.com/oauth/request_token");
     var headerDictionary = {
       oauth_version: this.oauthVersion,

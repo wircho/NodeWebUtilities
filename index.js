@@ -394,6 +394,7 @@ Twitter.getRequestToken = function(res,rej) {
 
 Twitter.getAccessToken = function(verifier,requestToken,tokenSecret,res,rej) {
   var r = request("POST","https://api.twitter.com/oauth/access_token");
+  console.log("got verifier: " + verifier);
   r.setParam("oauth_verifier",verifier);
   var headerDictionary = this.generateHeaderDictionaryWithSignature(r,requestToken,tokenSecret);
   var authHeader = this.generateOAuthHeader(headerDictionary);

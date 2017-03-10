@@ -349,12 +349,13 @@ Twitter.generateHeaderDictionary = function(oauthToken) {
     oauth_version: this.oauthVersion,
     oauth_nonce: this.generateNonce(),
     oauth_timestamp: this.generateTimestamp(),
-    oauth_callback: this.callback,
     oauth_signature_method: this.signatureMethod,
     oauth_consumer_key: this.consumerKey
   }
   if (def(oauthToken)) {
-    dict.oauthToken = oauthToken;
+    dict.oauth_token = oauthToken;
+  } else {
+    dict.oauth_callback = this.callback;
   }
   return dict;
 }.bind(Twitter);

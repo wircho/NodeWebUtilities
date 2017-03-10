@@ -391,9 +391,10 @@ Twitter.getRequestToken = function(res,rej) {
   r.setHeader("Authorization",authHeader).onLoad(res).onError(rej).send();
 }.bind(Twitter);
 
-Twitter.getAccessToken = function(requestToken,tokenSecret,res,rej) {
+Twitter.getAccessToken = function(verifier,requestToken,tokenSecret,res,rej) {
   var r = request("POST","https://api.twitter.com/oauth/access_token");
   var headerDictionary = this.generateHeaderDictionaryWithSignature(r,requestToken,tokenSecret);
+  headerDictionary.oauth_verifier = verifier;
   var authHeader = this.generateOAuthHeader(headerDictionary);
   r.setHeader("Authorization",authHeader).onLoad(res).onError(rej).send();
 }.bind(Twitter);

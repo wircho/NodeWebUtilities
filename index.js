@@ -333,49 +333,70 @@ var Twitter = {
   consumerSecret: TWITTER_SECRET,
   callback: TWITTER_CALLBACK,
   signatureMethod: "HMAC-SHA1",
-  oauthVersion: "1.0",
-  generateNonce: function() {
-    return randomNonce(42);
-  },
-  generateTimestamp: function() {
-    return secondsTS();
-  },
-  generateOAuthHeader: function(headerDictionary) {
-    return "OAuth " + loop(headerDictionary,function(key,value){ return encodeURIComponent(key) + "=\"" + encodeURIComponent(value) + "\"" }).join(",");
-  },
-  generateSignature: function(request, headerDictionary, tokenSecret) {
-    var method = request.method;
-    var url = request.urlComponents.getProtocolToPath();
-    var params = new Array();
-    loop(request.urlComponents.params,function(i,q){ params.push(q); });
-    loop(request.params,function(i,q){ params.push(q); });
-    loop(headerDictionary,function(key,value){ params.push(new QueryItem(key,value)); });
-    params = params.map(function(q){ return new QueryItem(encodeURIComponent(q.key),encodeURIComponent(q.value)); });
-    params.sort(function(p,q){ return (p.key < q.key) ? (-1) : 1 });
-    var paramString = params.map(function(q){ return q.key + "=" + q.value }).join("&");
-    var baseString = method.toUpperCase() + "&" + encodeURIComponent(url) + "&" + encodeURIComponent(paramString);
-    var signingKey = this.consumerSecret + "&" + fallback(tokenSecret,"");
-    return b64_hmac_sha1(signingKey,baseString);
-  },
-  getOAuthToken: function(res,rej) {
-    var r = request("POST","https://api.twitter.com/oauth/request_token");
-    var headerDictionary = {
-      oauth_version: this.oauthVersion,
-      oauth_nonce: this.generateNonce(),
-      oauth_timestamp: this.generateTimestamp(),
-      oauth_callback: this.callback,
-      oauth_signature_method: this.signatureMethod,
-      oauth_consumer_key: this.consumerKey
-    };
-    headerDictionary.oauth_signature = this.generateSignature(r, headerDictionary);
-    var authHeader = this.generateOAuthHeader(headerDictionary);
-    r.setHeader("Authorization",authHeader).onLoad(function(info) {
-      res(info);
-    }).onError(function(info) {
-      rej(info);
-    }).send();
-  }
+  oauthVersion: "1.0"
 }
+
+Twitter.generateNonce = function() {
+  return randomNonce(42);
+}.bind(Twitter);
+
+Twitter.generateTimestamp = function() {
+  return secondsTS();
+}.bind(Twitter);
+
+Twitter.generateHeaderDictionary = function(oauthToken) {
+  var dict = {
+    oauth_version: this.oauthVersion,
+    oauth_nonce: this.generateNonce(),
+    oauth_timestamp: this.generateTimestamp(),
+    oauth_callback: this.callback,
+    oauth_signature_method: this.signatureMethod,
+    oauth_consumer_key: this.consumerKey
+  }
+  if (def(oauthToken)) {
+    dict.oauthToken = oauthToken;
+  }
+  return dict;
+}.bind(Twitter);
+
+Twitter.generateHeaderDictionaryWithSignature = function(req, oauthToken, tokenSecret) {
+  var headerDictionary = this.generateHeaderDictionary(oauthToken);
+  headerDictionary.oauth_signature = this.generateSignature(req, headerDictionary, tokenSecret);
+  return headerDictionary;
+}.bind(Twitter);
+
+Twitter.generateOAuthHeader = function(headerDictionary) {
+  return "OAuth " + loop(headerDictionary,function(key,value){ return encodeURIComponent(key) + "=\"" + encodeURIComponent(value) + "\"" }).join(",");
+}.bind(Twitter);
+
+Twitter.generateSignature = function(request, headerDictionary, tokenSecret) {
+  var method = request.method;
+  var url = request.urlComponents.getProtocolToPath();
+  var params = new Array();
+  loop(request.urlComponents.params,function(i,q){ params.push(q); });
+  loop(request.params,function(i,q){ params.push(q); });
+  loop(headerDictionary,function(key,value){ params.push(new QueryItem(key,value)); });
+  params = params.map(function(q){ return new QueryItem(encodeURIComponent(q.key),encodeURIComponent(q.value)); });
+  params.sort(function(p,q){ return (p.key < q.key) ? (-1) : 1 });
+  var paramString = params.map(function(q){ return q.key + "=" + q.value }).join("&");
+  var baseString = method.toUpperCase() + "&" + encodeURIComponent(url) + "&" + encodeURIComponent(paramString);
+  var signingKey = this.consumerSecret + "&" + fallback(tokenSecret,"");
+  return b64_hmac_sha1(signingKey,baseString);
+}.bind(Twitter);
+
+Twitter.getRequestToken = function(res,rej) {
+  var r = request("POST","https://api.twitter.com/oauth/request_token");
+  var headerDictionary = this.generateHeaderDictionaryWithSignature(r);
+  var authHeader = this.generateOAuthHeader(headerDictionary);
+  r.setHeader("Authorization",authHeader).onLoad(res).onError(rej).send();
+}.bind(Twitter);
+
+Twitter.verifyAccessToken = function(accessToken,tokenSecret,res,rej) {
+  var r = request("GET","https://api.twitter.com/1.1/account/verify_credentials.json","json");
+  var headerDictionary = this.generateHeaderDictionaryWithSignature(r,accessToken,tokenSecret);
+  var authHeader = this.generateOAuthHeader(headerDictionary);
+  r.setHeader("Authorization",authHeader).onLoad(res).onError(rej).send();
+}.bind(Twitter);
 
 module.exports = {
 	QueryItem,

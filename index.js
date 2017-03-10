@@ -346,7 +346,7 @@ Twitter.generateTimestamp = function() {
   return secondsTS();
 }.bind(Twitter);
 
-Twitter.generateHeaderDictionary = function(oauthToken) {
+Twitter.generateHeaderDictionary = function(oauthToken, moreParams) {
   var dict = {
     oauth_version: this.oauthVersion,
     oauth_nonce: this.generateNonce(),
@@ -359,11 +359,16 @@ Twitter.generateHeaderDictionary = function(oauthToken) {
   } else {
     dict.oauth_callback = this.callback;
   }
+  if (def(moreParams)) {
+    loop(moreParams,function(key,value) {
+      dict.key = value;
+    });
+  }
   return dict;
 }.bind(Twitter);
 
-Twitter.generateHeaderDictionaryWithSignature = function(req, oauthToken, tokenSecret) {
-  var headerDictionary = this.generateHeaderDictionary(oauthToken);
+Twitter.generateHeaderDictionaryWithSignature = function(req, oauthToken, tokenSecret, moreParams) {
+  var headerDictionary = this.generateHeaderDictionary(oauthToken, moreParams);
   headerDictionary.oauth_signature = this.generateSignature(req, headerDictionary, tokenSecret);
   return headerDictionary;
 }.bind(Twitter);
@@ -397,8 +402,8 @@ Twitter.getRequestToken = function(res,rej) {
 Twitter.getAccessToken = function(verifier,requestToken,tokenSecret,res,rej) {
   var r = request("POST","https://api.twitter.com/oauth/access_token");
   console.log("got verifier: " + verifier);
-  r.setParam("oauth_verifier",verifier);
-  var headerDictionary = this.generateHeaderDictionaryWithSignature(r,requestToken,tokenSecret);
+  //r.setParam("oauth_verifier",verifier);
+  var headerDictionary = this.generateHeaderDictionaryWithSignature(r,requestToken,tokenSecret,{oauth_verifier:verifier});
   var authHeader = this.generateOAuthHeader(headerDictionary);
   r.setHeader("Authorization",authHeader).onLoad(res).onError(rej).send();
 }.bind(Twitter);

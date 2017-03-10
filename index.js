@@ -387,8 +387,11 @@ Twitter.generateSignature = function(request, headerDictionary, tokenSecret) {
   params = params.map(function(q){ return new QueryItem(encodeURIComponent(q.key),encodeURIComponent(q.value)); });
   params.sort(function(p,q){ return (p.key < q.key) ? (-1) : 1 });
   var paramString = params.map(function(q){ return q.key + "=" + q.value }).join("&");
+  console.log("generated signature param string: " + paramString);
   var baseString = method.toUpperCase() + "&" + encodeURIComponent(url) + "&" + encodeURIComponent(paramString);
+  console.log("base string: " + baseString);
   var signingKey = this.consumerSecret + "&" + fallback(tokenSecret,"");
+  console.log("signing key: " + signingKey);
   return b64_hmac_sha1(signingKey,baseString);
 }.bind(Twitter);
 

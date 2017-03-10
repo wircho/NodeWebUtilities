@@ -221,9 +221,7 @@ var RequestBackEndHelpers = {
     if (def(this.body)) {
       this.req.write(this.body);
     } else {
-      var str = QueryItem.stringFromArray(this.getAllParams());
-      console.log("writing: " + str);
-      this.req.write(str);
+      this.req.write(QueryItem.stringFromArray(this.getAllParams()));
     }
     this.req.end();
   }
@@ -387,11 +385,8 @@ Twitter.generateSignature = function(request, headerDictionary, tokenSecret) {
   params = params.map(function(q){ return new QueryItem(encodeURIComponent(q.key),encodeURIComponent(q.value)); });
   params.sort(function(p,q){ return (p.key < q.key) ? (-1) : 1 });
   var paramString = params.map(function(q){ return q.key + "=" + q.value }).join("&");
-  console.log("generated signature param string: " + paramString);
   var baseString = method.toUpperCase() + "&" + encodeURIComponent(url) + "&" + encodeURIComponent(paramString);
-  console.log("base string: " + baseString);
   var signingKey = this.consumerSecret + "&" + fallback(tokenSecret,"");
-  console.log("signing key: " + signingKey);
   return b64_hmac_sha1(signingKey,baseString);
 }.bind(Twitter);
 
@@ -404,9 +399,6 @@ Twitter.getRequestToken = function(res,rej) {
 
 Twitter.getAccessToken = function(verifier,requestToken,tokenSecret,res,rej) {
   var r = request("POST","https://api.twitter.com/oauth/access_token");
-  console.log("got token: " + requestToken);
-  console.log("got secret: " + tokenSecret);
-  console.log("got verifier: " + verifier);
   var headerDictionary = this.generateHeaderDictionaryWithSignature(r,requestToken,tokenSecret,{oauth_verifier:verifier});
   var authHeader = this.generateOAuthHeader(headerDictionary);
   r.setHeader("Authorization",authHeader).onLoad(res).onError(rej).send();

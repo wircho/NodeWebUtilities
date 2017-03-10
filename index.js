@@ -361,7 +361,7 @@ Twitter.generateHeaderDictionary = function(oauthToken, moreParams) {
   }
   if (def(moreParams)) {
     loop(moreParams,function(key,value) {
-      dict.key = value;
+      dict[key] = value;
     });
   }
   return dict;

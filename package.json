@@ -1,6 +1,6 @@
 {
   "name": "wircho-web-utilities",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "description": "Web utilities for node apps.",
   "dependencies": {
     "wircho-utilities": "git+https://github.com/wircho/NodeUtilities.git"

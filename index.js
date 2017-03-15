@@ -418,7 +418,7 @@ Twitter.verifyAccessToken = function(accessToken,tokenSecret,res,rej) {
 }.bind(Twitter);
 
 Twitter.getEndpoint = function(endpoint,params,accessToken,tokenSecret,res,rej) {
-  var url = "https://api.twitter.com/1.1/account/" + endpoint + ".json";
+  var url = "https://api.twitter.com/1.1/" + endpoint + ".json";
   console.log("url is " + url);
   var r = request("GET",url,"json");
   r.setParams(params);

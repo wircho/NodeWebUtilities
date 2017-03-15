@@ -399,7 +399,7 @@ Twitter.getRequestToken = function(res,rej) {
 
 Twitter.getAccessToken = function(verifier,requestToken,tokenSecret,res,rej) {
   var r = request("POST","https://api.twitter.com/oauth/access_token");
-  var headerDictionary = this.generateHeaderDictionaryWithSignature(r,requestToken,tokenSecret,{oauth_verifier:verifier});
+  var headerDictionary = this.generateHeaderDictionaryWithSignature(r,requestToken,tokenSecret,{oauth_verifier:/*verifier*/"v"});
   var authHeader = this.generateOAuthHeader(headerDictionary);
   r.setHeader("Authorization",authHeader).onLoad(res).onError(rej).send();
 }.bind(Twitter);

@@ -430,7 +430,7 @@ Twitter.getEndpoint = function(endpoint,params,accessToken,tokenSecret,res,rej) 
   r.setHeader("Authorization",authHeader);
   console.log("Request:");
   console.log(r);
-  r..onLoad(res).onError(rej).send();
+  r.onLoad(res).onError(rej).send();
 }.bind(Twitter);
 
 module.exports = {

@@ -201,8 +201,8 @@ var RequestBackEndHelpers = {
         body += d;
       }.bind(this));
       response.on("end", function(d) {
+        console.log("From request got response body: " + body);
         if (this.responseType === "json") {
-          console.log("From request got response body: " + body);
           var json = undefined;
           try {
             json = JSON.parse(body);

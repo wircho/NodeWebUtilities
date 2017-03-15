@@ -196,8 +196,6 @@ var RequestBackEndHelpers = {
       path: this.urlComponents.path,
       headers: this.headers
     }, function(response) {
-      console.log("Response was: ");
-      console.log(response);
       var body = "";
       response.on("data", function(d) {
         body += d;

@@ -418,7 +418,9 @@ Twitter.verifyAccessToken = function(accessToken,tokenSecret,res,rej) {
 }.bind(Twitter);
 
 Twitter.getEndpoint = function(endpoint,params,accessToken,tokenSecret,res,rej) {
-  var r = request("GET","https://api.twitter.com/1.1/account/" + endpoint + ".json","json");
+  var url = "https://api.twitter.com/1.1/account/" + endpoint + ".json";
+  console.log("url is " + url);
+  var r = request("GET",url,"json");
   r.setParams(params);
   var headerDictionary = this.generateHeaderDictionaryWithSignature(r,accessToken,tokenSecret);
   var authHeader = this.generateOAuthHeader(headerDictionary);

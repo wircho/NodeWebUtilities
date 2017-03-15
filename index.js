@@ -202,7 +202,13 @@ var RequestBackEndHelpers = {
       }.bind(this));
       response.on("end", function(d) {
         if (this.responseType === "json") {
-          var json = JSON.parse(body);
+          var json = undefined;
+          try {
+            json = JSON.parse(body);
+          } catch (e) {
+            this.loadMaybe.resolve({content:body,response});
+            return;
+          }
           this.loadMaybe.resolve({content:json,response});
         } else {
           this.loadMaybe.resolve({content:body,response});

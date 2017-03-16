@@ -190,10 +190,15 @@ var RequestFrontEndHelpers = {
 var RequestBackEndHelpers = {
   createHTTPRequest: function() {
     var proto = (this.urlComponents.protocol === "https") ? https : http;
+    var path = this.urlComponents.path;
+    if (this.method === "GET" || this.method === "HEAD") {
+      var queryString = QueryItem.stringFromArray(this.getAllParams());
+      path = path + "?" + queryString;
+    }
     var req = proto.request({
       method: this.method,
       host: this.urlComponents.base,
-      path: this.urlComponents.path,
+      path: path,
       headers: this.headers
     }, function(response) {
       var body = "";
@@ -226,7 +231,7 @@ var RequestBackEndHelpers = {
   sendHTTPRequest: function() {
     if (def(this.body)) {
       this.req.write(this.body);
-    } else {
+    } else if (this.method !== "GET" && this.method !== "POST") {
       this.req.write(QueryItem.stringFromArray(this.getAllParams()));
     }
     this.req.end();

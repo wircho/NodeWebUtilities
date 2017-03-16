@@ -395,7 +395,7 @@ Twitter.generateSignature = function(request, headerDictionary, tokenSecret) {
   var paramString = params.map(function(q){ return q.key + "=" + q.value }).join("&");
   console.log("Param string: " + paramString);
   var baseString = method.toUpperCase() + "&" + encodeURIComponent(url) + "&" + encodeURIComponent(paramString);
-  console.log("Base string: " + paramString);
+  console.log("Base string: " + baseString);
   var signingKey = this.consumerSecret + "&" + fallback(tokenSecret,"");
   console.log("Signing key: " + signingKey);
   return b64_hmac_sha1(signingKey,baseString);
@@ -433,6 +433,9 @@ Twitter.getEndpoint = function(endpoint,params,accessToken,tokenSecret,res,rej) 
   console.log("Request:");
   console.log(r);
   r.onLoad(res).onError(rej).send();
+  console.log(" ");
+  console.log("Actual request:");
+  console.log(r.req);
 }.bind(Twitter);
 
 module.exports = {

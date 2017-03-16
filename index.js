@@ -398,11 +398,8 @@ Twitter.generateSignature = function(request, headerDictionary, tokenSecret) {
   params = params.map(function(q){ return new QueryItem(encodeURIComponent(q.key),encodeURIComponent(q.value)); });
   params.sort(function(p,q){ return (p.key < q.key) ? (-1) : 1 });
   var paramString = params.map(function(q){ return q.key + "=" + q.value }).join("&");
-  console.log("Param string: " + paramString);
   var baseString = method.toUpperCase() + "&" + encodeURIComponent(url) + "&" + encodeURIComponent(paramString);
-  console.log("Base string: " + baseString);
   var signingKey = this.consumerSecret + "&" + fallback(tokenSecret,"");
-  console.log("Signing key: " + signingKey);
   return b64_hmac_sha1(signingKey,baseString);
 }.bind(Twitter);
 
@@ -429,18 +426,12 @@ Twitter.verifyAccessToken = function(accessToken,tokenSecret,res,rej) {
 
 Twitter.getEndpoint = function(endpoint,params,accessToken,tokenSecret,res,rej) {
   var url = "https://api.twitter.com/1.1/" + endpoint + ".json";
-  console.log("url is " + url);
   var r = request("GET",url,"json");
   r.setParams(params);
   var headerDictionary = this.generateHeaderDictionaryWithSignature(r,accessToken,tokenSecret);
   var authHeader = this.generateOAuthHeader(headerDictionary);
   r.setHeader("Authorization",authHeader);
-  console.log("Request:");
-  console.log(r);
   r.onLoad(res).onError(rej).send();
-  console.log(" ");
-  console.log("Actual request:");
-  console.log(r.req);
 }.bind(Twitter);
 
 module.exports = {

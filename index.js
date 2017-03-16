@@ -343,7 +343,7 @@ var Twitter = {
 }
 
 Twitter.generateNonce = function() {
-  return randomNonce(42);
+  return randomNonce(32);
 }.bind(Twitter);
 
 Twitter.generateTimestamp = function() {

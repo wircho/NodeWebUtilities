@@ -378,7 +378,9 @@ Twitter.generateHeaderDictionaryWithSignature = function(req, oauthToken, tokenS
 }.bind(Twitter);
 
 Twitter.generateOAuthHeader = function(headerDictionary) {
-  return "OAuth " + loop(headerDictionary,function(key,value){ return encodeURIComponent(key) + "=\"" + encodeURIComponent(value) + "\"" }).join(",");
+  var items = loop(headerDictionary,function(key,value){return new QueryItem(key,value)});
+  items.sort(function(p,q){ return (p.key < q.key) ? (-1) : 1 });
+  return "OAuth " + loop(items,function(key,item){ return encodeURIComponent(item.key) + "=\"" + encodeURIComponent(item.value) + "\"" }).join(",");
 }.bind(Twitter);
 
 Twitter.generateSignature = function(request, headerDictionary, tokenSecret) {

@@ -454,7 +454,7 @@ Twitter.getEndpoint = function(endpoint,params,accessToken,tokenSecret,res,rej) 
 
 Twitter.streamUserFeed = function(params,accessToken,tokenSecret,res,rej) {
   var url = "https://userstream.twitter.com/1.1/user.json";
-  var r = request("GET","https://userstream.twitter.com/1.1/user.json","json");
+  var r = request("GET","https://userstream.twitter.com/1.1/user.json");
   r.setParams(params);
   var headerDictionary = this.generateHeaderDictionaryWithSignature(r,accessToken,tokenSecret);
   var authHeader = this.generateOAuthHeader(headerDictionary);

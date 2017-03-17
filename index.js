@@ -201,24 +201,26 @@ var RequestBackEndHelpers = {
       path: path,
       headers: this.headers
     }, function(response) {
-      var body = "";
-      response.on("data", function(d) {
-        body += d;
-      }.bind(this));
-      response.on("end", function(d) {
-        if (this.responseType === "json") {
-          var json = undefined;
-          try {
-            json = JSON.parse(body);
-          } catch (e) {
+      if (this.needsLoadedData) {
+        var body = "";
+        response.on("data", function(d) {
+          body += d;
+        }.bind(this));
+        response.on("end", function(d) {
+          if (this.responseType === "json") {
+            var json = undefined;
+            try {
+              json = JSON.parse(body);
+            } catch (e) {
+              this.loadMaybe.resolve({content:body,response});
+              return;
+            }
+            this.loadMaybe.resolve({content:json,response});
+          } else {
             this.loadMaybe.resolve({content:body,response});
-            return;
           }
-          this.loadMaybe.resolve({content:json,response});
-        } else {
-          this.loadMaybe.resolve({content:body,response});
-        }
-      }.bind(this));
+        }.bind(this));
+      }
     }.bind(this));
     req.on("error", function(error) {
       this.errorMaybe.resolve(error);
@@ -259,6 +261,8 @@ function Request(method,url,responseType) {
   this.sent = false;
   this.loadMaybe = new Maybe();
   this.errorMaybe = new Maybe();
+
+  this.needsLoadedData = false;
   
   this.getAllParams = function() {
     return this.urlComponents.plusParams(this.params).params;
@@ -316,6 +320,7 @@ function Request(method,url,responseType) {
   };
   
   this.onLoad = function(callback) {
+    this.needsLoadedData = true;
     this.loadMaybe.promise.then(callback);
     return this;
   };

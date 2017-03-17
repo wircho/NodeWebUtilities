@@ -201,11 +201,18 @@ var RequestBackEndHelpers = {
       path: path,
       headers: this.headers
     }, function(response) {
-      if (this.needsLoadedData) {
-        var body = "";
-        response.on("data", function(d) {
+      var body = "";
+      response.on("data", function(d) {
+        if (this.needsLoadedData) {
           body += d;
-        }.bind(this));
+        }
+        var info = {data: d, response};
+        for (var i=0; i<this.dataCallbacks.length; i+=1) {
+          var c = this.dataCallbacks[i];
+          c(info);
+        }
+      }.bind(this));
+      if (this.needsLoadedData) {
         response.on("end", function(d) {
           if (this.responseType === "json") {
             var json = undefined;
@@ -261,6 +268,7 @@ function Request(method,url,responseType) {
   this.sent = false;
   this.loadMaybe = new Maybe();
   this.errorMaybe = new Maybe();
+  this.dataCallbacks = new Array();
 
   this.needsLoadedData = false;
   
@@ -324,6 +332,11 @@ function Request(method,url,responseType) {
     this.loadMaybe.promise.then(callback);
     return this;
   };
+
+  this.onData = function(callback) {
+    this.dataCallbacks.push(callback);
+    return this;
+  }
   
   this.onError = function(callback) {
     this.errorMaybe.promise.then(callback);
@@ -437,6 +450,16 @@ Twitter.getEndpoint = function(endpoint,params,accessToken,tokenSecret,res,rej) 
   var authHeader = this.generateOAuthHeader(headerDictionary);
   r.setHeader("Authorization",authHeader);
   r.onLoad(res).onError(rej).send();
+}.bind(Twitter);
+
+Twitter.streamUserFeed = function(params,accessToken,tokenSecret,res,rej) {
+  var url = "https://userstream.twitter.com/1.1/user.json";
+  var r = request("GET","https://userstream.twitter.com/1.1/user.json","json");
+  r.setParams(params);
+  var headerDictionary = this.generateHeaderDictionaryWithSignature(r,accessToken,tokenSecret);
+  var authHeader = this.generateOAuthHeader(headerDictionary);
+  r.setHeader("Authorization",authHeader);
+  r.onData(res).onError(rej).send();
 }.bind(Twitter);
 
 module.exports = {

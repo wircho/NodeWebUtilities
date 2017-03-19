@@ -167,7 +167,7 @@ var RequestFrontEndHelpers = {
         var c = this.dataCallbacks[i];
         c(info);
       }
-    }, false);
+    }.bind(this), false);
     req.onerror = function() {
       this.errorMaybe.resolve({request: req});
     }.bind(this);

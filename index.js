@@ -208,6 +208,7 @@ var RequestBackEndHelpers = {
     if (r.method === "GET" || r.method === "HEAD") {
       var queryString = QueryItem.stringFromArray(r.getAllParams());
       path = path + "?" + queryString;
+      console.log("NEW PATH: " + path);
     }
     var req = proto.request({
       method: r.method,

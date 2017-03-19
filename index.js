@@ -161,6 +161,13 @@ var RequestFrontEndHelpers = {
     req.onload = function() {
       this.loadMaybe.resolve({request: req});
     }.bind(this);
+    req.addEventListener('progress', function() {
+      var info = {request: req};
+      for (var i=0; i<this.dataCallbacks.length; i+=1) {
+        var c = this.dataCallbacks[i];
+        c(info);
+      }
+    }, false);
     req.onerror = function() {
       this.errorMaybe.resolve({request: req});
     }.bind(this);

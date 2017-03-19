@@ -335,7 +335,7 @@ function Request(method,url,responseType) {
     createReq();
     console.log("calling open on:");
     console.log(this);
-    RequestHelpers.using.openHTTPRequest.call(this);
+    RequestHelpers.using.openHTTPRequest.bind(this)();
     return this;
   };
   
@@ -359,7 +359,7 @@ function Request(method,url,responseType) {
     if (this.sent) { return this; }
     this.sent = true;
     this.open();
-    RequestHelpers.using.sendHTTPRequest.call(this);
+    RequestHelpers.using.sendHTTPRequest.bind(this)();
     return this;
   };
 }

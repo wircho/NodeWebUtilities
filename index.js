@@ -479,7 +479,7 @@ Twitter.streamUserFeed = function(params,accessToken,tokenSecret,res,rej) {
 }.bind(Twitter);
 
 Twitter.oEmbed = function(url,res,rej) {
-  request("GET","https://publish.twitter.com/oembed","json").setParam("url",url).setParam("omit_script","1").onLoad(res).onError(rej).send();
+  request("GET","https://publish.twitter.com/oembed","json").setParams({omit_script:"1",url}).onLoad(res).onError(rej).send();
 }.bind(Twitter);
 
 module.exports = {

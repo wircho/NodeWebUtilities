@@ -155,107 +155,107 @@ function request(method,url,responseType) {
 }
 
 var RequestFrontEndHelpers = {
-  createHTTPRequest: function() {
+  createHTTPRequest: function(r) {
     var req = new XMLHttpRequest();
-    req.responseType = fallback(this.responseType,"");
+    req.responseType = fallback(r.responseType,"");
     req.onload = function() {
-      this.loadMaybe.resolve({request: req});
-    }.bind(this);
+      r.loadMaybe.resolve({request: req});
+    };
     var responseCaret = 0;
     req.addEventListener('progress', function() {
       var data = req.response.substring(responseCaret);
       responseCaret = req.response.length;
       var info = {request: req, data};
-      for (var i=0; i<this.dataCallbacks.length; i+=1) {
-        var c = this.dataCallbacks[i];
+      for (var i=0; i<r.dataCallbacks.length; i+=1) {
+        var c = r.dataCallbacks[i];
         c(info);
       }
-    }.bind(this), false);
+    }, false);
     req.onerror = function() {
-      this.errorMaybe.resolve({request: req});
-    }.bind(this);
+      r.errorMaybe.resolve({request: req});
+    };
     return req;
   }.bind(null),
-  openHTTPRequest: function() {
+  openHTTPRequest: function(r) {
     console.log("calling openHTTPRequest on:");
-    console.log(this);
-    this.req.open(this.method, this.getURL());
-    loop(this.headers,function(key,value) {
-      this.req.setRequestHeader(key,value);
-    }.bind(this));
+    console.log(r);
+    r.req.open(r.method, r.getURL());
+    loop(r.headers,function(key,value) {
+      r.req.setRequestHeader(key,value);
+    });
   }.bind(null),
-  sendHTTPRequest: function() {
-    if (this.method === "GET" || this.method === "HEAD") {
-      this.req.send();
+  sendHTTPRequest: function(r) {
+    if (r.method === "GET" || r.method === "HEAD") {
+      r.req.send();
     } else {
-      if (def(this.body)) {
-        this.req.send(this.body);
-      } else if (this.params.length > 0) {
-        this.req.send(QueryItem.stringFromArray(this.params));
+      if (def(r.body)) {
+        r.req.send(r.body);
+      } else if (r.params.length > 0) {
+        r.req.send(QueryItem.stringFromArray(r.params));
       } else {
-        this.req.send();
+        r.req.send();
       }
     }
   }.bind(null)
 }
 
 var RequestBackEndHelpers = {
-  createHTTPRequest: function() {
-    var proto = (this.urlComponents.protocol === "https") ? https : http;
-    var path = this.urlComponents.path;
-    if (this.method === "GET" || this.method === "HEAD") {
-      var queryString = QueryItem.stringFromArray(this.getAllParams());
+  createHTTPRequest: function(r) {
+    var proto = (r.urlComponents.protocol === "https") ? https : http;
+    var path = r.urlComponents.path;
+    if (r.method === "GET" || r.method === "HEAD") {
+      var queryString = QueryItem.stringFromArray(r.getAllParams());
       path = path + "?" + queryString;
     }
     var req = proto.request({
-      method: this.method,
-      host: this.urlComponents.base,
+      method: r.method,
+      host: r.urlComponents.base,
       path: path,
-      headers: this.headers
+      headers: r.headers
     }, function(response) {
       var body = "";
       response.on("data", function(d) {
-        if (this.needsLoadedData) {
+        if (r.needsLoadedData) {
           body += d;
         }
         var info = {data: d, response};
-        for (var i=0; i<this.dataCallbacks.length; i+=1) {
-          var c = this.dataCallbacks[i];
+        for (var i=0; i<r.dataCallbacks.length; i+=1) {
+          var c = r.dataCallbacks[i];
           c(info);
         }
-      }.bind(this));
-      if (this.needsLoadedData) {
+      });
+      if (r.needsLoadedData) {
         response.on("end", function(d) {
-          if (this.responseType === "json") {
+          if (r.responseType === "json") {
             var json = undefined;
             try {
               json = JSON.parse(body);
             } catch (e) {
-              this.loadMaybe.resolve({content:body,response});
+              r.loadMaybe.resolve({content:body,response});
               return;
             }
-            this.loadMaybe.resolve({content:json,response});
+            r.loadMaybe.resolve({content:json,response});
           } else {
-            this.loadMaybe.resolve({content:body,response});
+            r.loadMaybe.resolve({content:body,response});
           }
-        }.bind(this));
+        });
       }
-    }.bind(this));
+    });
     req.on("error", function(error) {
-      this.errorMaybe.resolve(error);
-    }.bind(this));
+      r.errorMaybe.resolve(error);
+    });
     return req;
   }.bind(null),
-  openHTTPRequest: function() {
+  openHTTPRequest: function(r) {
     // Nothing here
   }.bind(null),
-  sendHTTPRequest: function() {
-    if (def(this.body)) {
-      this.req.write(this.body);
-    } else if (this.method !== "GET" && this.method !== "POST") {
-      this.req.write(QueryItem.stringFromArray(this.getAllParams()));
+  sendHTTPRequest: function(r) {
+    if (def(r.body)) {
+      r.req.write(r.body);
+    } else if (r.method !== "GET" && r.method !== "POST") {
+      r.req.write(QueryItem.stringFromArray(r.getAllParams()));
     }
-    this.req.end();
+    r.req.end();
   }.bind(null)
   
 }
@@ -299,7 +299,7 @@ function Request(method,url,responseType) {
   
   createReq = function() {
     if (!def(this.req)) {
-      this.req = RequestHelpers.using.createHTTPRequest.bind(this)();
+      this.req = RequestHelpers.using.createHTTPRequest(this);
     }
   }.bind(this);
   
@@ -337,7 +337,7 @@ function Request(method,url,responseType) {
     createReq();
     console.log("calling open on:");
     console.log(this);
-    RequestHelpers.using.openHTTPRequest.bind(this)();
+    RequestHelpers.using.openHTTPRequest(this);
     return this;
   };
   
@@ -361,7 +361,7 @@ function Request(method,url,responseType) {
     if (this.sent) { return this; }
     this.sent = true;
     this.open();
-    RequestHelpers.using.sendHTTPRequest.bind(this)();
+    RequestHelpers.using.sendHTTPRequest(this);
     return this;
   };
 }

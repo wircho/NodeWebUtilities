@@ -472,6 +472,10 @@ Twitter.streamUserFeed = function(params,accessToken,tokenSecret,res,rej) {
   r.onData(res).onError(rej).send();
 }.bind(Twitter);
 
+Twitter.oEmbed = function(url,res,rej) {
+  request("GET","https://publish.twitter.com/oembed","json").setParam("url",url).onLoad(res).onError(rej).send();
+}.bind(Twitter);
+
 module.exports = {
 	QueryItem,
 	URLComponents,

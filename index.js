@@ -177,6 +177,8 @@ var RequestFrontEndHelpers = {
     return req;
   }.bind(null),
   openHTTPRequest: function() {
+    console.log("calling openHTTPRequest on:");
+    console.log(this);
     this.req.open(this.method, this.getURL());
     loop(this.headers,function(key,value) {
       this.req.setRequestHeader(key,value);
@@ -297,7 +299,7 @@ function Request(method,url,responseType) {
   
   createReq = function() {
     if (!def(this.req)) {
-      this.req = RequestHelpers.using.createHTTPRequest.call(this);
+      this.req = RequestHelpers.using.createHTTPRequest.bind(this)();
     }
   }.bind(this);
   

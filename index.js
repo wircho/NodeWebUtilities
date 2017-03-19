@@ -76,7 +76,7 @@ QueryItem.arrayFromString = function(string) {
 };
 
 QueryItem.stringFromArray = function(array) {
-  return array.map(function(q) { return q.getComp() }).join("");
+  return array.map(function(q) { return q.getComp() }).join("&");
 };
 
 QueryItem.dictionaryFromArray = function(array) {

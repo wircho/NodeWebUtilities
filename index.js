@@ -333,6 +333,8 @@ function Request(method,url,responseType) {
     if (this.opened) { return this; }
     this.opened = true;
     createReq();
+    console.log("calling open on:");
+    console.log(this);
     RequestHelpers.using.openHTTPRequest.call(this);
     return this;
   };

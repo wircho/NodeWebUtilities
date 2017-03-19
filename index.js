@@ -161,8 +161,11 @@ var RequestFrontEndHelpers = {
     req.onload = function() {
       this.loadMaybe.resolve({request: req});
     }.bind(this);
+    var responseCaret = 0;
     req.addEventListener('progress', function() {
-      var info = {request: req};
+      var data = req.response.substring(responseCaret);
+      responseCaret = req.response.length;
+      var info = {request: req, data};
       for (var i=0; i<this.dataCallbacks.length; i+=1) {
         var c = this.dataCallbacks[i];
         c(info);

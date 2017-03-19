@@ -175,13 +175,13 @@ var RequestFrontEndHelpers = {
       this.errorMaybe.resolve({request: req});
     }.bind(this);
     return req;
-  },
+  }.bind(null),
   openHTTPRequest: function() {
     this.req.open(this.method, this.getURL());
     loop(this.headers,function(key,value) {
       this.req.setRequestHeader(key,value);
     }.bind(this));
-  },
+  }.bind(null),
   sendHTTPRequest: function() {
     if (this.method === "GET" || this.method === "HEAD") {
       this.req.send();
@@ -194,7 +194,7 @@ var RequestFrontEndHelpers = {
         this.req.send();
       }
     }
-  }
+  }.bind(null)
 }
 
 var RequestBackEndHelpers = {
@@ -243,10 +243,10 @@ var RequestBackEndHelpers = {
       this.errorMaybe.resolve(error);
     }.bind(this));
     return req;
-  },
+  }.bind(null),
   openHTTPRequest: function() {
     // Nothing here
-  },
+  }.bind(null),
   sendHTTPRequest: function() {
     if (def(this.body)) {
       this.req.write(this.body);
@@ -254,7 +254,7 @@ var RequestBackEndHelpers = {
       this.req.write(QueryItem.stringFromArray(this.getAllParams()));
     }
     this.req.end();
-  }
+  }.bind(null)
   
 }
 

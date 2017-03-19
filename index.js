@@ -161,16 +161,18 @@ var RequestFrontEndHelpers = {
     req.onload = function() {
       r.loadMaybe.resolve({request: req});
     };
-    var responseCaret = 0;
-    req.addEventListener('progress', function() {
-      var data = req.response.substring(responseCaret);
-      responseCaret = req.response.length;
-      var info = {request: req, data};
-      for (var i=0; i<r.dataCallbacks.length; i+=1) {
-        var c = r.dataCallbacks[i];
-        c(info);
-      }
-    }, false);
+    if (r.dataCallbacks.length > 0) {
+      var responseCaret = 0;
+      req.addEventListener('progress', function() {
+        var data = req.response.substring(responseCaret);
+        responseCaret = req.response.length;
+        var info = {request: req, data};
+        for (var i=0; i<r.dataCallbacks.length; i+=1) {
+          var c = r.dataCallbacks[i];
+          c(info);
+        }
+      }, false);
+    }
     req.onerror = function() {
       r.errorMaybe.resolve({request: req});
     };

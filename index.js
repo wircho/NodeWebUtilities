@@ -95,29 +95,44 @@ QueryItem.dictionaryFromString = function(string) {
 function URLComponents(url) {
   if (def(url)) {
     var u = url;
+    console.log("- Parsing URL " + u);
     var hashSplit = u.split("#");
     if (hashSplit.length > 1) {
       u = hashSplit.shift();
+      console.log("- New URL " + u);
       this.fragment = hashSplit.join("#");
+      console.log("- Fragment " + this.fragment);
+    } else {
+      console.log("- No fragment found. URL remains " + u);
     }
     var qSplit = u.split("?");
     if (qSplit.lenght > 1) {
       u = qSplit.shift();
+      console.log("- New URL " + u);
       this.params = QueryItem.arrayFromString(qSplit.join("?"));
+      console.log("- Params: " + this.params);
     } else {
+      console.log("- No params found. URL remains " + u);
       this.params = new Array();
     }
     var bSplit = u.split("://");
     if (bSplit.length > 1) {
       this.protocol = bSplit.shift();
       u = bSplit.join("://");
+      console.log("- New URL " + u);
+      console.log("- Protocol: " + this.protocol);
     } else {
+      console.log("- No protocol found. URL remains " + u);
       this.protocol = "http";
     }
     var pSplit = u.split("/");
     if (pSplit.length > 1) {
       u = pSplit.shift();
+      console.log("- New URL " + u);
       this.path = "/" + pSplit.join("/");
+      console.log("- Path: " + this.path);
+    } else {
+      console.log("- No path found. URL remains " + u);
     }
     this.base = u;
   };

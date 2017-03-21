@@ -106,7 +106,7 @@ function URLComponents(url) {
       console.log("- No fragment found. URL remains " + u);
     }
     var qSplit = u.split("?");
-    if (qSplit.lenght > 1) {
+    if (qSplit.length > 1) {
       u = qSplit.shift();
       console.log("- New URL " + u);
       this.params = QueryItem.arrayFromString(qSplit.join("?"));

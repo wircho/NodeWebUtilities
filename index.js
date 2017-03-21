@@ -438,9 +438,9 @@ Twitter.generateSignature = function(request, headerDictionary, tokenSecret) {
   return b64_hmac_sha1(signingKey,baseString);
 }.bind(Twitter);
 
-Twitter.getRequestToken = function(res,rej) {
+Twitter.getRequestToken = function(callbackURL,res,rej) {
   var r = request("POST","https://api.twitter.com/oauth/request_token");
-  var headerDictionary = this.generateHeaderDictionaryWithSignature(r);
+  var headerDictionary = this.generateHeaderDictionaryWithSignature(r, undefined, undefined, {oauth_callback: callbackURL});
   var authHeader = this.generateOAuthHeader(headerDictionary);
   r.setHeader("Authorization",authHeader).onLoad(res).onError(rej).send();
 }.bind(Twitter);

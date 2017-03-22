@@ -241,7 +241,7 @@ var RequestBackEndHelpers = {
         if (r.needsLoadedData) {
           body += d;
         }
-        var info = {data: d, response};
+        var info = {data: d, response, request:req};
         for (var i=0; i<r.dataCallbacks.length; i+=1) {
           var c = r.dataCallbacks[i];
           c(info);
@@ -249,19 +249,19 @@ var RequestBackEndHelpers = {
       });
       
       response.on("end", function(d) {
-        r.endMaybe.resolve({response});
+        r.endMaybe.resolve({response,request:req});
         if (r.needsLoadedData) {
           if (r.responseType === "json") {
             var json = undefined;
             try {
               json = JSON.parse(body);
             } catch (e) {
-              r.loadMaybe.resolve({content:body,response});
+              r.loadMaybe.resolve({content:body,response,request:req});
               return;
             }
-            r.loadMaybe.resolve({content:json,response});
+            r.loadMaybe.resolve({content:json,response,request:req});
           } else {
-            r.loadMaybe.resolve({content:body,response});
+            r.loadMaybe.resolve({content:body,response,request:req});
           }
         }
       });

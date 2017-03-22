@@ -176,6 +176,11 @@ var RequestFrontEndHelpers = {
     req.onload = function() {
       r.loadMaybe.resolve({request: req});
     };
+    req.onreadystatechange = function() {
+      if (req.readyState === 4) { // Ended
+        r.endMaybe.resolve({request: req});
+      }
+    }
     if (r.dataCallbacks.length > 0) {
       var responseCaret = 0;
       req.addEventListener('progress', function() {
@@ -242,8 +247,10 @@ var RequestBackEndHelpers = {
           c(info);
         }
       });
-      if (r.needsLoadedData) {
-        response.on("end", function(d) {
+      
+      response.on("end", function(d) {
+        r.endMaybe.resolve({response});
+        if (r.needsLoadedData) {
           if (r.responseType === "json") {
             var json = undefined;
             try {
@@ -256,8 +263,9 @@ var RequestBackEndHelpers = {
           } else {
             r.loadMaybe.resolve({content:body,response});
           }
-        });
-      }
+        }
+      });
+      
     });
     req.on("error", function(error) {
       r.errorMaybe.resolve(error);
@@ -298,6 +306,7 @@ function Request(method,url,responseType) {
   this.sent = false;
   this.loadMaybe = new Maybe();
   this.errorMaybe = new Maybe();
+  this.endMaybe = new Maybe();
   this.dataCallbacks = new Array();
 
   this.needsLoadedData = false;
@@ -362,6 +371,11 @@ function Request(method,url,responseType) {
   this.onLoad = function(callback) {
     this.needsLoadedData = true;
     this.loadMaybe.promise.then(callback);
+    return this;
+  };
+
+  this.onEnd = function(callback) {
+    this.endMaybe.promise.then(callback);
     return this;
   };
 

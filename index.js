@@ -91,6 +91,20 @@ QueryItem.dictionaryFromString = function(string) {
   return QueryItem.dictionaryFromArray(QueryItem.arrayFromString(string));
 };
 
+QueryItem.arrayFromDictionary = function(dictionary) {
+  var array = [];
+  for (var key in dictionary) {
+    if (dictionary.hasOwnProperty(key)) {
+      array.push(new QueryItem(key, dictionary[key]));
+    }
+  }
+  return array;
+}
+
+QueryItem.stringFromDictionary = function(dictionary) {
+  return QueryItem.stringFromArray(QueryItem.arrayFromDictionary(dictionary));
+}
+
 // URLComponents type
 function URLComponents(url) {
   if (def(url)) {
@@ -189,14 +203,18 @@ var RequestFrontEndHelpers = {
       r.req.setRequestHeader(key,value);
     });
   }.bind(null),
-  sendHTTPRequest: function(r) {
+  sendHTTPRequest: function(r, contentType) {
     if (r.method === "GET" || r.method === "HEAD") {
       r.req.send();
     } else {
       if (def(r.body)) {
         r.req.send(r.body);
       } else if (r.params.length > 0) {
-        r.req.send(QueryItem.stringFromArray(r.params));
+        if (contentType === "json") {
+          r.req.send(JSON.stringify(QueryItem.dictionaryFromArray(r.params)));
+        } else {
+          r.req.send(QueryItem.stringFromArray(r.params));
+        }
       } else {
         r.req.send();
       }
@@ -210,6 +228,9 @@ var RequestBackEndHelpers = {
     var path = r.urlComponents.path;
     if (r.method === "GET" || r.method === "HEAD") {
       var queryString = QueryItem.stringFromArray(r.getAllParams());
+      path = path + "?" + queryString;
+    } else if (r.urlComponents.params.length > 0) {
+      var queryString = QueryItem.stringFromArray(r.urlComponents.params);
       path = path + "?" + queryString;
     }
     var req = proto.request({
@@ -257,11 +278,15 @@ var RequestBackEndHelpers = {
   openHTTPRequest: function(r) {
     // Nothing here
   }.bind(null),
-  sendHTTPRequest: function(r) {
+  sendHTTPRequest: function(r, contentType) {
     if (def(r.body)) {
       r.req.write(r.body);
-    } else if (r.method !== "GET" && r.method !== "POST") {
-      r.req.write(QueryItem.stringFromArray(r.getAllParams()));
+    } else if (r.method !== "GET" && r.method !== "HEAD") {
+      if (contentType === "json") {
+        r.req.write(JSON.stringify(QueryItem.dictionaryFromArray(r.params)));
+      } else {
+        r.req.write(QueryItem.stringFromArray(r.params));
+      }
     }
     r.req.end();
   }.bind(null)
@@ -369,11 +394,11 @@ function Request(method,url,responseType) {
     return this;
   };
   
-  this.send = function() {
+  this.send = function(contentType) {
     if (this.sent) { return this; }
     this.sent = true;
     this.open();
-    RequestHelpers.using.sendHTTPRequest(this);
+    RequestHelpers.using.sendHTTPRequest(this, contentType);
     return this;
   };
 }
@@ -493,12 +518,12 @@ Twitter.oEmbed = function(url,res,rej) {
 }.bind(Twitter);
 
 module.exports = {
-	QueryItem,
-	URLComponents,
+  QueryItem,
+  URLComponents,
   RequestFrontEndHelpers,
   RequestBackEndHelpers,
-	RequestHelpers,
+  RequestHelpers,
   Request,
-	request,
-	Twitter
+  request,
+  Twitter
 };
